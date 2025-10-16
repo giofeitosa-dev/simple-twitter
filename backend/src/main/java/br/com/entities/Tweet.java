@@ -4,12 +4,13 @@ import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,12 +22,14 @@ public class Tweet {
     @Column (name = "tweet_id")
     private Long tweetId;
     
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String content;
 
     @CreationTimestamp
-    private Instant creatInstant;
+    private Instant creationTimestamp;
 
     public Long getTweetId() {
         return tweetId;
@@ -52,12 +55,12 @@ public class Tweet {
         this.content = content;
     }
 
-    public Instant getCreatInstant() {
-        return creatInstant;
+    public Instant getCreationTimestamp() {
+        return creationTimestamp;
     }
 
-    public void setCreatInstant(Instant creatInstant) {
-        this.creatInstant = creatInstant;
+    public void setCreationTimestamp(Instant creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 
 

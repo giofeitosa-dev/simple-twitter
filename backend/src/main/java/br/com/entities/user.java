@@ -19,7 +19,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_users")
-public class user {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
