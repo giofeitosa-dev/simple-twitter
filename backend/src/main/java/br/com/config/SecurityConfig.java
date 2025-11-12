@@ -1,6 +1,7 @@
 package br.com.config;
 
 
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -8,6 +9,8 @@ import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,6 +37,12 @@ public class SecurityConfig {
     private RSAPrivateKey privateKey;
 
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) 
+            throws Exception {
+        // Isso configura o AuthenticationManager para usar o UserDetailsService e PasswordEncoder
+        return authenticationConfiguration.getAuthenticationManager();
+    }
     
 
 
@@ -43,7 +52,8 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/login").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/users").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/login").permitAll()
                     .anyRequest().authenticated())
             .csrf(csrf -> csrf.disable())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

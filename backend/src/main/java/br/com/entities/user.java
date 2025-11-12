@@ -1,8 +1,13 @@
 package br.com.entities;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.controller.dto.LoginRequest;
@@ -20,27 +25,29 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_users")
-public class User {
+public class User implements UserDetails { 
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(unique =  true)
+    @Column(unique = true)
     private String username;
 
     private String password;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable (
+    @JoinTable(
         name = "tb_users_roles",
-        joinColumns =  @JoinColumn(name = "user_id"),
+        joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
 
+    public User() {}
 
+    
 
     public UUID getUserId() {
         return userId;
@@ -50,7 +57,8 @@ public class User {
         this.userId = userId;
     }
 
-    public String getUsername() {
+    @Override 
+    public String getUsername() { 
         return username;
     }
 
@@ -58,6 +66,7 @@ public class User {
         this.username = username;
     }
 
+    @Override 
     public String getPassword() {
         return password;
     }
@@ -69,17 +78,40 @@ public class User {
     public Set<Role> getRoles() {
         return roles;
     }
-
+    
+    
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
-    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.matches(loginRequest.password(), this.password);
+  
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         
+        return this.roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toSet());
     }
 
-
-
     
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
